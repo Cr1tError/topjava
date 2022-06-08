@@ -8,8 +8,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class MealsUtil {
@@ -41,7 +43,25 @@ public class MealsUtil {
                 .collect(Collectors.toList());
     }
 
+    public static Map<Integer, MealTo> filteredByCycles (Map<Integer, Meal> meals, int caloriesPerDay){
+        Map<Integer, MealTo> resultMap = new ConcurrentHashMap<>();
+        Map <LocalDate, Integer> caloriesSumBYDate = new HashMap<>();
+        for(Integer i : meals.keySet()){
+            if(!caloriesSumBYDate.containsKey(meals.get(i).getDate())){
+                caloriesSumBYDate.put(meals.get(i).getDate(), meals.get(i).getCalories());
+            } else {
+                caloriesSumBYDate.replace(meals.get(i).getDate(), (caloriesSumBYDate.get(meals.get(i).getDate()) + meals.get(i).getCalories()));
+            }
+        }
+
+        for(Integer i : meals.keySet()){
+           resultMap.put(i, createTo(meals.get(i), (caloriesSumBYDate.get(meals.get(i).getDate()) > caloriesPerDay)));
+        }
+        return resultMap;
+    }
+
     private static MealTo createTo(Meal meal, boolean excess) {
         return new MealTo(meal.getDateTime(), meal.getDescription(), meal.getCalories(), excess);
     }
+
 }
