@@ -16,22 +16,20 @@ public class InMemoryUserRepository implements UserRepository {
     private static final Logger log = LoggerFactory.getLogger(InMemoryUserRepository.class);
     private final Map<Integer, User> repository = new ConcurrentHashMap<>();
     private final AtomicInteger counter = new AtomicInteger(0);
+
     @Override
     public boolean delete(int id) {
         log.info("delete {}", id);
-        if(repository.containsKey(id)) {
-            repository.remove(id);
-            return true;
-        } else return false;
+        return repository.remove(id) != null;
     }
 
     @Override
     public User save(User user) {
         log.info("save {}", user);
-        if(user.isNew()){
+        if (user.isNew()) {
             user.setId(counter.incrementAndGet());
             repository.put(user.getId(), user);
-            return  user;
+            return user;
         }
         return repository.computeIfPresent(user.getId(), (id, oldUser) -> user);
     }
@@ -46,21 +44,19 @@ public class InMemoryUserRepository implements UserRepository {
     @Override
     public List<User> getAll() {
         log.info("getAll");
-        return repository.values().stream().sorted(new Comparator<User>() {
-            @Override
-            public int compare(User o1, User o2) {
-                if(o1.getName().equals(o2.getName())){
-                    return o1.getEmail().compareTo(o2.getEmail());
-                }
-                return o1.getName().compareTo(o2.getName());
-            }
-        }).collect(Collectors.toList());
+
+        return repository.values().stream()
+                .sorted(Comparator.comparing(User::getName).thenComparing(User::getEmail))
+                .collect(Collectors.toList());
     }
+
 
     @Override
     public User getByEmail(String email) {
         log.info("getByEmail {}", email);
         return repository.values().stream()
-                .filter(user->user.getEmail().equals(email)).findFirst().get();
+                .filter(user -> email.equals(user.getEmail()))
+                .findFirst()
+                .orElse(null);
     }
 }

@@ -1,39 +1,53 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<html lang="ru">
+<%@ taglib prefix="fn" uri="http://topjava.javawebinar.ru/functions" %>
+<%--<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>--%>
+<html>
 <head>
-    <title>Meals</title>
-    <link href="static/css/mealsTable.css" rel="stylesheet" type="text/css">
-
+    <title>Meal list</title>
+    <style>
+        .normal {
+            color: green;
+        }
+        .excess {
+            color: red;
+        }
+    </style>
 </head>
 <body>
-<h3><a href="index.html">Home</a></h3>
-<hr>
-<h2>Meals</h2>
-<h4><a href="meal.jsp">Add new meal</a></h4>
-<table class="minimalistBlack">
-    <thead>
-    <tr>
-        <th>Date</th>
-        <th>Description</th>
-        <th>Calories</th>
-        <th>Update</th>
-        <th>Delete</th>
-    </tr>
-    </thead>
-    <c:forEach var="entry" items="${attr1}">
-        <c:if test="${entry.value.excess == true}">
-            <tr style="color: red">
-        </c:if>
-        <fmt:parseDate value="${ entry.value.dateTime }" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDateTime" type="both"/>
-        <td><fmt:formatDate value="${parsedDateTime}" pattern="yyyy-MM-dd HH-mm"/></td>
-        <td>${entry.value.description}</td>
-        <td>${entry.value.calories}</td>
-        <td><a href="index.html"> Update</a></td>
-        <td><a href="meals?action=delete&id=${entry.key}"> Delete</a></td>
+<section>
+    <h3><a href="index.html">Home</a></h3>
+    <hr/>
+    <h2>Meals</h2>
+    <a href="meals?action=create">Add Meal</a>
+    <br><br>
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Calories</th>
+            <th></th>
+            <th></th>
         </tr>
-    </c:forEach>
-</table>
+        </thead>
+        <c:forEach items="${requestScope.meals}" var="meal">
+            <jsp:useBean id="meal" type="ru.javawebinar.topjava.to.MealTo"/>
+            <tr class="${meal.excess ? 'excess' : 'normal'}">
+                <td>
+                        <%--${meal.dateTime.toLocalDate()} ${meal.dateTime.toLocalTime()}--%>
+                        <%--<%=TimeUtil.toString(meal.getDateTime())%>--%>
+                        <%--${fn:replace(meal.dateTime, 'T', ' ')}--%>
+                        ${fn:formatDateTime(meal.dateTime)}
+                </td>
+                <td>${meal.description}</td>
+                <td>${meal.calories}</td>
+                <td><a href="meals?action=update&id=${meal.id}">Update</a></td>
+                <td><a href="meals?action=delete&id=${meal.id}">Delete</a></td>
+            </tr>
+        </c:forEach>
+    </table>
+</section>
 </body>
 </html>
