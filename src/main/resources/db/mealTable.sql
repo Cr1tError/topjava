@@ -5,7 +5,7 @@ CREATE SEQUENCE meal_global_seq START WITH 100000;
 
 CREATE TABLE meals
 (
-    id          INTEGER PRIMARY KEY DEFAULT nextval('global_seq'),
+    id          INTEGER PRIMARY KEY DEFAULT nextval('meal_global_seq'),
     description VARCHAR                                  NOT NULL,
     calories    INTEGER                                  NOT NULL,
     dateTime    TIMESTAMP                         UNIQUE NOT NULL,
